@@ -1,0 +1,8 @@
+langgraph==0.4.3
+langgraph-api==0.2.20
+langgraph-cli[inmem]==0.2.10
+langchain
+langchain-community
+llama-cpp-python==0.2.57
+python-dotenv
+huggingface_hub

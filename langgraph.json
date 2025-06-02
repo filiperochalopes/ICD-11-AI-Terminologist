@@ -1,0 +1,17 @@
+{
+  "entrypoint": "main:app",
+  "name": "ICD11 Mapping Agent",
+  "description": "Agent that maps clinical concepts to ICD-11 codes using a locally hosted quantized model.",
+  "version": "0.1.0",
+  "language": "python",
+  "dependencies": [
+    "python>=3.8",
+    "llama-cpp-python==0.2.57",
+    "huggingface_hub",
+    "python-dotenv",
+    "langgraph[cli]"
+  ],
+  "graphs": {
+    "agent": "main:app"
+  }
+}
