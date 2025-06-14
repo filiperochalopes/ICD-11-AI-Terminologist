@@ -6,7 +6,13 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM
 
 from huggingface_hub import login, snapshot_download
-login(token="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")
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+# login na Hugging Face
+login(token=os.getenv("HF_TOKEN"))
 
 snapshot_download(
     repo_id="filipelopesmedbr/cid11-agent-mistral-8b",
