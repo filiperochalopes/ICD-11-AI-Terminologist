@@ -6,7 +6,7 @@ from peft import PeftModel
 from transformers import AutoModelForCausalLM
 
 from huggingface_hub import login, snapshot_download
-login(token="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")
+login(token="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")
 
 snapshot_download(
     repo_id="filipelopesmedbr/cid11-agent-mistral-8b",

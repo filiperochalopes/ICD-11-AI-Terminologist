@@ -1,8 +1,8 @@
 {
-  "entrypoint": "main:app",
-  "name": "ICD11 Mapping Agent",
+  "entrypoint": "V3:app",
+  "name": "LangGraph App",
   "description": "Agent that maps clinical concepts to ICD-11 codes using a locally hosted quantized model.",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "language": "python",
   "dependencies": [
     "python>=3.8",
@@ -12,6 +12,8 @@
     "langgraph[cli]"
   ],
   "graphs": {
-    "agent": "main:app"
+    "ICD 11 Agent V1": "V1:app",
+    "ICD 11 Agent V2": "V2:app",
+    "ICD 11 Agent V3": "V3:app"
   }
 }

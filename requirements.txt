@@ -6,3 +6,6 @@ langchain-community
 llama-cpp-python==0.2.57
 python-dotenv
 huggingface_hub
+qdrant-client[fastembed]
+transformers
+sentence-transformers

@@ -1,7 +1,9 @@
 import os
-from dotenv import load_dotenv
-from huggingface_hub import hf_hub_download
+from qdrant_client import QdrantClient
 from llama_cpp import Llama
+from huggingface_hub import hf_hub_download
+from dotenv import load_dotenv
+
 
 # 1. Carrega o token do ambiente
 load_dotenv()
@@ -9,7 +11,7 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 # 2. Configurações
 REPO_ID = "filipelopesmedbr/cid11-agent-mistral-8b"
-FILENAME = "ggml-icd11-8b-q4_k.gguf"
+FILENAME = "ggml-icd11-8b-V2-q4_k.gguf"
 
 # 3. Baixa o arquivo GGUF apenas se não estiver no cache
 def get_model_path() -> str:
@@ -33,6 +35,17 @@ def load_model() -> Llama:
         use_mmap=True,
         verbose=False,
     )
+
+
+def load_qdrant_client() -> QdrantClient:
+    """
+    Cria e retorna um cliente conectado ao Qdrant.
+    Exemplo sem autenticação:
+    """
+    # Se tiver QDRANT_API_KEY ou QDRANT_URL no .env, use:
+    host = os.getenv("QDRANT_HOST", "qdrant.filipelopes.me")
+    port = os.getenv("QDRANT_PORT", "80")
+    return QdrantClient(host=host, port=int(port), prefer_grpc=False)
 
 if __name__ == "__main__":
     model = load_model()
