@@ -3,7 +3,7 @@ from typing import ClassVar, List, Set
 from qdrant_client.http.models import Filter
 from langchain.tools import BaseTool
 from V3.env import qdrant_client, collections, TOP_K
-from V3.classes import ChatMessage, GraphState, GraphStateManager
+from V3.classes import GraphState, GraphStateManager
 
 
 class VectorDatabaseRetrieveStemCodes(BaseTool):
@@ -18,7 +18,7 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
         "from Qdrant, formatted as a text block."
     )
 
-    def _run(self, state: GraphState) -> GraphState:
+    def _run(self, state: GraphState, blacklist_codes: List[str] = []) -> GraphState:
 
         sm = GraphStateManager(state)
 
@@ -55,6 +55,13 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
                 ),
             )
 
+            # Subtrai os valores que os códigos estão em blacklist
+            hits.points = [
+                point
+                for point in hits.points
+                if point.payload["code"] not in blacklist_codes
+            ]
+
             # Process each returned point
             for point in hits.points:
                 payload = point.payload or {}
@@ -84,14 +91,18 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
             return sm.update(
                 {
                     "task_memory": [{"name": "stem_hits", "content": stem_hits}],
-                    "messages": [{
-                        "type": "ai",
-                        "content": "\n".join(["[Stem Codes]", header] + results),
-                    }],
-                    "context": [{
-                        "name": "stem_hits",
-                        "text": "\n".join([header] + results),
-                    }],
+                    "messages": [
+                        {
+                            "type": "ai",
+                            "content": "\n".join(["[Stem Codes]", header] + results),
+                        }
+                    ],
+                    "context": [
+                        {
+                            "name": "stem_hits",
+                            "text": "\n".join([header] + results),
+                        }
+                    ],
                 }
             )
         # Return fallback message if no matches
