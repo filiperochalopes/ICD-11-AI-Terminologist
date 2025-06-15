@@ -1,4 +1,4 @@
-from V3.classes import GraphState
+from V3.classes import GraphState, GraphStateManager
 from V3.tools import vector_database_retrieve_stem_codes
 
 
@@ -18,7 +18,11 @@ def step_001_retrieval_stem_codes(state: GraphState) -> GraphState:
     print(f"🔍 User message for retrieval: {user_message}")
 
     # Run semantic search against Qdrant using the user input as query
-    result = vector_database_retrieve_stem_codes._run(state)
+    result = vector_database_retrieve_stem_codes._run(
+        GraphStateManager().update(
+            {"clinical_concept_input": user_message, "messages": state.messages}
+        )
+    )
 
     # Return updated graph state
     return result

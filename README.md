@@ -4,7 +4,7 @@ conda activate langgraph
 conda install -c conda-forge compilers cmake
 pip install --prefer-binary -r requirements.txt
 langgraph dev --host 0.0.0.0 --no-browser
-langgraph run main:graph
+langgraph run V3:app
 ```
 
 ```sh
