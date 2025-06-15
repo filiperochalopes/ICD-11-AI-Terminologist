@@ -1,9 +1,8 @@
-langgraph==0.4.3
-langgraph-api==0.2.20
-langgraph-cli[inmem]==0.2.10
-langchain
-langchain-community
+langgraph==0.4.8
+langgraph-api==0.2.51
+langgraph-cli[inmem]==0.3.3
 llama-cpp-python==0.2.57
+langchain-community==0.3.25
 python-dotenv
 huggingface_hub
 qdrant-client[fastembed]

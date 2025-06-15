@@ -1,20 +1,12 @@
-# main.py
-
-from langgraph.prebuilt import create_react_agent
+from langgraph.graph import StateGraph
 from langchain.tools import BaseTool
 from langchain_community.chat_models import ChatLlamaCpp
-from pydantic import BaseModel, Field
-from typing import Annotated, Optional, Dict, Any
 from sentence_transformers import SentenceTransformer
 from qdrant_client.http.models import Filter
-from model_loader import load_qdrant_client
-from typing import ClassVar
-from langgraph.graph import StateGraph
-from typing import List, Literal
 
-class ChatMessage(BaseModel):
-    type: Literal["human", "ai"]
-    content: str
+from helpers.model_loader import load_qdrant_client
+from helpers.classes import ChatMessage, GraphState
+from typing import Dict, Any, ClassVar
 
 # ------------------------------------------------------------------
 # 1) Parâmetros e carregamento de recursos globais
@@ -233,10 +225,6 @@ Always use exactly the keys 'context' and 'concept' when invoking icd11_mapping.
 Example:
   {{ "context": "<texto do Qdrant>", "concept": "Example concept" }}
 """
-
-class GraphState(BaseModel):
-    messages: List[ChatMessage]
-    context: str = ""
 
 # Initialize tools
 qdrant_tool = QdrantRetrievalTool()
