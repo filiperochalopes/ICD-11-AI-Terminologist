@@ -12,8 +12,6 @@
     "langgraph[cli]"
   ],
   "graphs": {
-    "ICD 11 Agent V1": "V1:app",
-    "ICD 11 Agent V2": "V2:app",
     "ICD 11 Agent V3": "V3:app"
   }
 }

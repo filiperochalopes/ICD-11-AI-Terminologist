@@ -2,7 +2,7 @@
 conda create -n langgraph python=3.11 -y
 conda activate langgraph
 conda install -c conda-forge compilers cmake
-pip install --prefer-binary -r requirements.txtʋ
+pip install --prefer-binary -r requirements.txt
 langgraph dev --host 0.0.0.0 --no-browser
 langgraph run main:graph
 ```

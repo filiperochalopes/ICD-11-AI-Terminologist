@@ -1,56 +1,71 @@
+# Module: ICD-11 Mapping Tool
+# This tool maps a clinical concept and supporting context text to the most appropriate ICD-11 code
+# using a local ChatLlamaCpp model.
+
 from langchain.tools import BaseTool
 from langchain_community.chat_models import ChatLlamaCpp
 from typing import Dict, Any, ClassVar
 from V3.env import GGUF_MODEL_PATH
 
 class ICD11MappingTool(BaseTool):
+    """
+    LangChain Tool: ICD-11 Mapping
+    Selects the ICD-11 code that best matches a given clinical concept.
+    Ensures the chosen code's specificity does not exceed that of the input concept.
+    """
     name: ClassVar[str] = "icd11_mapping"
     description: ClassVar[str] = (
-        "Recebe um dicionário com 'context' e 'concept'. "
-        "Retorna string com o código ICD-11 gerado."
-    )
-    """
-    Tool para perguntar ao Llama, dado um contexto (texto vindo do Qdrant)
-    e um conceito clínico original, qual o código ICD-11 mais adequado.
-    """
-    name = "icd11_mapping"
-    description = (
-        "Recebe um dicionário com chaves 'context' (texto) e 'concept' (texto). "
-        "Retorna a string com o código ICD-11 mapeado, possivelmente incluindo "
-        "tags de pós-coordenação ou explicações."
+        "Maps a clinical concept to the most fitting ICD-11 code. "
+        "The selected code will be as specific as possible but will not be more specific "
+        "than the provided concept."
     )
 
-    # Instanciaremos um ChatLlamaCpp por classe (pode-se ajustar para reuse global se desejar)
+    # Initialize ChatLlamaCpp once per class for efficiency and reuse
     llm: ClassVar[ChatLlamaCpp] = ChatLlamaCpp(
-        model_path=GGUF_MODEL_PATH,
-        max_tokens=64, 
-        temperature=0.2,
-        n_ctx=1536,
-        verbose=True
+        model_path=GGUF_MODEL_PATH,  # Path to the local GGUF model file
+        max_tokens=64,               # Limit response length
+        temperature=0.2,             # Low randomness for consistent outputs
+        n_ctx=1536,                  # Context window size for input
+        verbose=True                 # Enable model-level logging for debugging
     )
 
-    def _run(self, args: Dict[str, Any]) -> str:
-        # args deve conter 'context' e 'concept'
-        context = args.get("context", "")
-        concept = args.get("concept", "")
+    def _run(self, input_args: Dict[str, Any]) -> str:
+        """
+        Synchronous execution entry point.
+        Args:
+            input_args: dict containing:
+                - 'concept': str, the clinical concept to code.
+                - 'context': str, supporting text (e.g., vector search results).
+        Returns:
+            str: The selected ICD-11 code (possibly with post-coordination tags).
+        """
+        # Extract core parameters
+        concept = input_args.get("concept", "").strip()
+        context = input_args.get("context", "").strip()
 
-        # Monta o prompt completo incluindo contexto + conceito
+        # Build a clear, deterministic prompt
         prompt = (
-            "<s>[INST] You are a medical coding assistant.\n\n"
-            "Instructions:\n"
-            "1. Never return a code that begins with “X” (an extension alone).\n"
-            "2. If additional detail is needed, combine extension codes (X-prefix) only in association with a valid stem code:\n"
-            "   • Use “&” to join a stem code with one or more extensions when the extension adds detail (e.g., “MA14.1&XN109”).\n"
-            "   • Use “/” to join two stem codes when both underlying conditions must be represented together (e.g., “DB51/DB30.4”).\n"
-            "   • Complex cases may require both “&” and “/” in the same cluster (e.g., “DA63.Z&XT8W/ME24.9Z”).\n"
-            "3. Only return the final ICD-11 code (or code cluster) that fully represents the concept—do not include any extra text or explanation.\n\n"
-            f"Clinical concept to map: <input>{concept}</input>\n"
-            f"{context} [/INST]"
+            "<s>[INST] You are a clinical coding assistant.\n\n"
+            "Task:\n"
+            "Select the single ICD-11 code that best matches the given clinical concept.\n"
+            "- The chosen code must be as specific as possible without exceeding the concept's specificity.\n"
+            "- Do NOT introduce any additional qualifiers or attributes not present in the concept.\n\n"
+            "Example:\n"
+            "  Concept = 'fracture of the femoral head'\n"
+            "  Do NOT select 'open fracture of the femoral head'.\n\n"
+            f"Concept: {concept}\n"
+            f"Context: {context}\n"
+            "[/INST]"
         )
 
-        # Invoca o ChatLlamaCpp para gerar a resposta
-        output = self.llm.invoke(prompt)
-        return output.content.strip()
+        # Invoke the model to generate the code mapping
+        response = self.llm.invoke(prompt)
+        # Return the cleaned output
+        return response.content.strip()
 
-    def _arun(self, args: Dict[str, Any]) -> str:
-        return self._run(args)
+    def _arun(self, input_args: Dict[str, Any]) -> str:
+        """
+        Asynchronous execution entry point.
+        Delegates to the synchronous _run method.
+        """
+        return self._run(input_args)
