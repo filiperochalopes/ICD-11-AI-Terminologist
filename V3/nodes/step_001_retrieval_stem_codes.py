@@ -1,4 +1,4 @@
-from helpers.classes import GraphState
+from V3.classes import GraphState
 from V3.tools import vector_database_retrieve_stem_codes
 
 

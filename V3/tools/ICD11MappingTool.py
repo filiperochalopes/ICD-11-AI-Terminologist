@@ -1,11 +1,8 @@
-# Module: ICD-11 Mapping Tool
-# This tool maps a clinical concept and supporting context text to the most appropriate ICD-11 code
-# using a local ChatLlamaCpp model.
-
 from langchain.tools import BaseTool
 from langchain_community.chat_models import ChatLlamaCpp
 from typing import Dict, Any, ClassVar
 from V3.env import GGUF_MODEL_PATH
+from V3.classes import GraphState
 
 class ICD11MappingTool(BaseTool):
     """
@@ -29,7 +26,7 @@ class ICD11MappingTool(BaseTool):
         verbose=True                 # Enable model-level logging for debugging
     )
 
-    def _run(self, input_args: Dict[str, Any]) -> str:
+    def _run(self, input_args: Dict[str, Any]) -> GraphState:
         """
         Synchronous execution entry point.
         Args:

@@ -3,7 +3,7 @@ from typing import ClassVar, List, Set
 from qdrant_client.http.models import Filter
 from langchain.tools import BaseTool
 from V3.env import qdrant_client, collections, TOP_K
-from helpers.classes import ChatMessage, GraphState
+from V3.classes import ChatMessage, GraphState
 
 
 class VectorDatabaseRetrieveStemCodes(BaseTool):
@@ -78,21 +78,20 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
         # Prepare and return the output block
         if results:
             header = "Relevant matched stem codes found:"
-            return GraphState(
-                **state,
-                memory=[{"name": "stem_hits", "content": stem_hits}],
-                messages=state.messages
+            return state.copy(update={
+                "memory": [{"name": "stem_hits", "content": stem_hits}],
+                "messages": state.messages
                 + [
                     ChatMessage(
                         type="ai", content="\n".join(["[Stem Codes]", header] + results)
                     )
                 ],
-                context=state.context
+                "context": state.context
                 + [{"name": "stem_hits", "text": "\n".join([header] + results)}],
-            )
+            })
         # Return fallback message if no matches
         return GraphState(
-            **state,
+            **state.dict(),
             messages=state.messages
             + [ChatMessage(type="ai", content="No relevant stem codes found.")],
         )

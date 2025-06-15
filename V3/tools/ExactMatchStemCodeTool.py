@@ -1,4 +1,4 @@
-from helpers.classes import GraphState
+from V3.classes import GraphState
 from typing import Dict, Any, ClassVar
 from langchain.tools import BaseTool
 import re

@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph
-from helpers.classes import GraphState
+from V3.classes import GraphState
 from helpers.model_loader import load_qdrant_client
 from sentence_transformers import SentenceTransformer
 import torch
