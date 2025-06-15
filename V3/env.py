@@ -5,6 +5,10 @@ from sentence_transformers import SentenceTransformer
 import torch
 
 GGUF_MODEL_PATH = "models/ggml-icd11-8b-q4_k.gguf"
+# GGUF_MODEL_PATH = "models/Ministral-8B-Instruct-2410-Q4_K_L.gguf"
+# GGUF_MODEL_PATH = "models/deepseek-coder-6.7b-instruct.Q4_K_M.gguf"
+# GGUF_MODEL_PATH = "models/llama-2-7b-chat.Q4_K_M.gguf"
+
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -19,7 +23,9 @@ class Collection:
         return SentenceTransformer(self.uri, device=device)
 
     def embed(self, text: str):
-        return self.model.encode(text, convert_to_numpy=True, normalize_embeddings=True).tolist()
+        return self.model.encode(
+            text, convert_to_numpy=True, normalize_embeddings=True
+        ).tolist()
 
 
 collections = [

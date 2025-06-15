@@ -1,5 +1,5 @@
 from V3.classes import GraphState, GraphStateManager
-from typing import Dict, Any, ClassVar
+from typing import ClassVar
 from langchain.tools import BaseTool
 import re
 
@@ -16,7 +16,6 @@ class ExactMatchStemCodeTool(BaseTool):
     )
 
     def _run(self, state: GraphState) -> GraphState:
-
         sm = GraphStateManager(state)
 
         # Normalize input concept: remove punctuation and lowercase
@@ -28,7 +27,7 @@ class ExactMatchStemCodeTool(BaseTool):
         stem_hits = []
         for item in state.task_memory:
             if getattr(item, "name", None) == "stem_hits":
-                stem_hits = item.content or []
+                stem_hits = item.content
                 break
 
         # Normalize input concept: remove punctuation, lowercase, and split into tokens
@@ -53,7 +52,17 @@ class ExactMatchStemCodeTool(BaseTool):
             if set(fsn_tokens) == set(concept_tokens) or set(label_tokens) == set(
                 concept_tokens
             ):
-                return sm.update({"partial_output_code": hit.get("code")})
+                return sm.update(
+                    {
+                        "partial_output_code": hit.get("code"),
+                        "messages": [
+                            {
+                                "type": "ai",
+                                "content": f"[Exact Match]\nCode: {hit.get('code')}\nFSN: {hit.get('fsn')}\nLabel: {hit.get('label')}",
+                            }
+                        ],
+                    }
+                )
 
         return state
 

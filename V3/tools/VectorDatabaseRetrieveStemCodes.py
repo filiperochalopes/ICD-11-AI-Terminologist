@@ -18,9 +18,16 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
         "from Qdrant, formatted as a text block."
     )
 
-    def _run(self, state: GraphState, blacklist_codes: List[str] = []) -> GraphState:
+    def _run(self, state: GraphState) -> GraphState:
 
         sm = GraphStateManager(state)
+        # Captura todos os códigos em state.task_memory cujo name é 'blacklist_code'
+        blacklist_codes = set()
+        for item in state.task_memory:
+            if item.get("name") == "blacklist_code":
+                code = item.get("content", "")
+                if isinstance(code, str) and code != "":
+                    blacklist_codes.add(code)
 
         """
         Synchronous execution entry point.
@@ -100,7 +107,7 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
                     "context": [
                         {
                             "name": "stem_hits",
-                            "text": "\n".join([header] + results),
+                            "content": "\n".join([header] + results),
                         }
                     ],
                 }

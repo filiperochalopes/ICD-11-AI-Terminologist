@@ -17,12 +17,21 @@ def step_001_retrieval_stem_codes(state: GraphState) -> GraphState:
     user_message = state.messages[-1].content
     print(f"🔍 User message for retrieval: {user_message}")
 
+    sm = GraphStateManager(state)
+
     # Run semantic search against Qdrant using the user input as query
     result = vector_database_retrieve_stem_codes._run(
-        GraphStateManager().update(
-            {"clinical_concept_input": user_message, "messages": state.messages}
-        )
+        sm.update({"clinical_concept_input": user_message})
     )
 
     # Return updated graph state
-    return result
+    return GraphStateManager(result).update(
+        {
+            "task_memory": [
+                {
+                    "name": "step",
+                    "content": "step_001_retrieval_stem_codes",
+                }
+            ]
+        }
+    )
