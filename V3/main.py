@@ -4,6 +4,7 @@ from V3.nodes import (
     step_001_retrieval_stem_codes,
     step_002_exact_match_stem_code,
     step_003_llm_select_stem_code,
+    final_looper,
 )
 
 from V3.env import builder
@@ -34,6 +35,7 @@ builder.add_node("retrieve stem codes", step_001_retrieval_stem_codes)
 builder.add_node("compare exact stem concept match", step_002_exact_match_stem_code)
 builder.add_node("llm select stem code", step_003_llm_select_stem_code)
 builder.add_node("check concept specificity", analysis_step_specificity_check)
+builder.add_node("final looper", final_looper)
 
 # Entry point
 builder.set_entry_point("retrieve stem codes")
@@ -46,18 +48,19 @@ builder.add_conditional_edges(
     "check concept specificity",
     decide_next_after_specificity,
     {
-        "end": END,
+        "end": "final looper",
         "resume_llm": "llm select stem code",
         "restart": "retrieve stem codes",
     },
 )
 
 builder.add_edge("llm select stem code", "check concept specificity")
+builder.add_edge("check concept specificity", "final looper")
 
 # Declare finish points em ambos:
 # - Se compare encontrou algo (mensagem não vazia), o grafo para ali.
 # - Se compare NÃO encontrou (mensagem vazia), ele sai para mapping, e depois para finish.
-builder.set_finish_point("check concept specificity")
+builder.set_finish_point("final looper")
 
 # Compile graph
 graph = builder.compile()

@@ -18,7 +18,8 @@ class GraphState(BaseModel):
     context: List[NamedConcept] = []
     task_memory: List[NamedConcept] = []
     partial_output_code: str = ""
-    final_code: str = ""
+    final_code: str = "" # Código final desse passo
+    final_codes: List[str] = [] # Armazenamento de códigos finais
 
 
 class GraphStateManager:

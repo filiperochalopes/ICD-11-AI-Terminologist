@@ -45,7 +45,7 @@ class LLMBasedTool(BaseTool):
             # Fallback to local ChatLlamaCpp
             self._llm = ChatLlamaCpp(
                 model_path=GGUF_MODEL_PATH,
-                max_tokens=2560,
+                max_tokens=8*512,
                 temperature=0.1,
                 n_ctx=1536,
                 verbose=True,
