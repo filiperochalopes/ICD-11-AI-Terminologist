@@ -13,6 +13,7 @@ models_to_download = [
     {"repo": "filipelopesmedbr/icd11-llm-ministral-8b", "filename": "ggml-icd11-8b-q4_k.gguf"},
     {"repo": "TheBloke/deepseek-coder-6.7B-instruct-GGUF", "filename": "deepseek-coder-6.7b-instruct.Q4_K_M.gguf"},
     {"repo": "TheBloke/Llama-2-7B-Chat-GGUF", "filename": "llama-2-7b-chat.Q4_K_M.gguf"},
+    {"repo": "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF", "filename": "DeepSeek-R1-0528-Qwen3-8B-Q4_K_M.gguf"},
 ]
 
 # Local models directory
