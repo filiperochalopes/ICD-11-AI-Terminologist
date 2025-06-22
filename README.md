@@ -60,3 +60,36 @@ Future nodes have been scaffolded for post‑coordination workflows and extensio
 
 Version 1 introduced the basic two‑step pipeline—retrieval of similar stem codes from Qdrant followed by a single LlamaCpp call for mapping. Version 2 added post‑coordination instructions and generated longer responses to explain cluster formation. Version 3 builds a more robust graph architecture with multiple encoders, exact matching, specificity checking and looping.
 
+
+## Qdrant
+
+Start a local Qdrant instance:
+
+```sh
+docker run -p 6333:6333 -p 6334:6334 \
+    -v "$(pwd)/qdrant_storage:/qdrant/storage:z" \
+    qdrant/qdrant
+```
+
+Then populate the collections:
+
+```sh
+python helpers/populate_qdrant.py
+```
+
+## Docker
+
+Build the image for a specific version (defaults to V3):
+
+```sh
+docker build -t icd11 --build-arg VERSION=V3 .
+```
+
+Run the container:
+
+```sh
+docker run -p 8000:8000 icd11
+```
+
+The container executes `langgraph run <VERSION>:app` inside.
+

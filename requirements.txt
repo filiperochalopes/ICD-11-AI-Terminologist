@@ -9,3 +9,4 @@ qdrant-client[fastembed]
 transformers
 sentence-transformers
 pydantic==2.11.7
+gdown

@@ -2,12 +2,10 @@ import os
 from huggingface_hub import hf_hub_download
 from dotenv import load_dotenv
 
-# Load Hugging Face token from .env
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# List of models to download
-models_to_download = [
+MODELS = [
     {"repo": "bartowski/Ministral-8B-Instruct-2410-GGUF", "filename": "Ministral-8B-Instruct-2410-Q4_K_L.gguf"},
     {"repo": "filipelopesmedbr/icd11-llm-ministral-8b", "filename": "ggml-icd11-8b-V2-q4_k.gguf"},
     {"repo": "filipelopesmedbr/icd11-llm-ministral-8b", "filename": "ggml-icd11-8b-q4_k.gguf"},
@@ -16,13 +14,12 @@ models_to_download = [
     {"repo": "unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF", "filename": "DeepSeek-R1-0528-Qwen3-8B-Q4_K_M.gguf"},
 ]
 
-# Local models directory
 LOCAL_DIR = "./models"
 
-def ensure_models():
-    os.makedirs(LOCAL_DIR, exist_ok=True)
 
-    for model in models_to_download:
+def ensure_models() -> None:
+    os.makedirs(LOCAL_DIR, exist_ok=True)
+    for model in MODELS:
         target_path = os.path.join(LOCAL_DIR, model["filename"])
         if os.path.exists(target_path):
             print(f"[✔] File already exists: {model['filename']}")
@@ -37,6 +34,7 @@ def ensure_models():
             local_dir_use_symlinks=False,
         )
         print(f"[✓] Downloaded: {model['filename']}")
+
 
 if __name__ == "__main__":
     ensure_models()
