@@ -38,6 +38,10 @@ tmux attach -t lg
 
 # terminate
 tmux kill-session -t lg
+
+The tmux session lets you keep the development server running while debugging in LangSmith. Copy the application URL (baseUrl) and open:
+https://smith.langchain.com/studio/thread?baseUrl=<APP_URL>&mode=chat
+where `<APP_URL>` is your server address.
 ```
 
 ## Release Notes – Version 3 (0.3.0)
