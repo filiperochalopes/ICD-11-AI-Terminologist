@@ -66,9 +66,13 @@ Version 1 introduced the basic two‑step pipeline—retrieval of similar stem c
 Start a local Qdrant instance:
 
 ```sh
-docker run -p 6333:6333 -p 6334:6334 \
-    -v "$(pwd)/qdrant_storage:/qdrant/storage:z" \
-    qdrant/qdrant
+mkdir -p qdrant_storage
+container image pull docker.io/qdrant/qdrant:latest
+nohup container run \
+  --mount type=bind,src=$(pwd)/qdrant_storage,dst=/qdrant/storage \
+  docker.io/qdrant/qdrant:latest > qdrant.log 2>&1 &
+container ls # set local ip:6333 in .env QDRANT_URL
+tail -f qdrant.log
 ```
 
 Then populate the collections:
