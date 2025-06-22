@@ -18,8 +18,8 @@ class GraphState(BaseModel):
     context: List[NamedConcept] = []
     task_memory: List[NamedConcept] = []
     partial_output_code: str = ""
-    final_code: str = "" # Código final desse passo
-    final_codes: List[str] = [] # Armazenamento de códigos finais
+    final_code: str = ""  # Código final desse passo
+    final_codes: List[str] = []  # Armazenamento de códigos finais
 
 
 class GraphStateManager:
@@ -35,7 +35,9 @@ class GraphStateManager:
             ]
         if "context" in data:
             data["context"] = self.state.context + [
-                concept if isinstance(concept, NamedConcept) else NamedConcept(**concept)
+                concept
+                if isinstance(concept, NamedConcept)
+                else NamedConcept(**concept)
                 for concept in data["context"]
             ]
         if "task_memory" in data:
@@ -43,5 +45,16 @@ class GraphStateManager:
                 memory if isinstance(memory, NamedConcept) else NamedConcept(**memory)
                 for memory in data["task_memory"]
             ]
+        if "final_codes" in data:
+            data["final_codes"] = self.state.final_codes + [data["final_codes"]]
         self.state = self.state.copy(update=data)
         return self.state
+
+    def clear_steps(self) -> GraphState:
+        task_memory = [t for t in self.state.task_memory if t.name != "step"]
+        state_dict = self.state.dict()
+        state_dict["task_memory"] = task_memory
+        return GraphState(**state_dict)
+    
+    def reset(self) -> GraphState:
+        return GraphState()

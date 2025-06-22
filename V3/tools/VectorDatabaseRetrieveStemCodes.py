@@ -19,15 +19,19 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
     )
 
     def _run(self, state: GraphState) -> GraphState:
-
         sm = GraphStateManager(state)
         # Captura todos os códigos em state.task_memory cujo name é 'blacklist_code'
         blacklist_codes = set()
+        print("********* ITEM *********")
         for item in state.task_memory:
-            if item.get("name") == "blacklist_code":
-                code = item.get("content", "")
-                if isinstance(code, str) and code != "":
-                    blacklist_codes.add(code)
+            print("item:", item)
+            if item.name == "blacklist_code":
+                blacklist_codes.add(item.content)
+                    
+        
+        print("++++++++++++++++++++")
+        print("blacklist_codes:", blacklist_codes)
+        print("++++++++++++++++++++")
 
         """
         Synchronous execution entry point.
@@ -69,6 +73,10 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
                 if point.payload["code"] not in blacklist_codes
             ]
 
+            print(">>>>>>>>>>>")
+            print("hits.points", [f"{p.payload['code']} - {p.payload['concept_name']}" for p in hits.points])
+            print(">>>>>>>>>>>")
+
             # Process each returned point
             for point in hits.points:
                 payload = point.payload or {}
@@ -95,9 +103,13 @@ class VectorDatabaseRetrieveStemCodes(BaseTool):
         # Prepare and return the output block
         if results:
             header = "Relevant matched stem codes found:"
+            # Só adiciona stem_hits a task_memory se ainda não existe
+            task_memory: List[dict] = []
+            if len([h for h in state.task_memory if h.name == "stem_hits"]) == 0:
+                task_memory.append({"name": "stem_hits", "content": stem_hits})
             return sm.update(
                 {
-                    "task_memory": [{"name": "stem_hits", "content": stem_hits}],
+                    "task_memory": task_memory,
                     "messages": [
                         {
                             "type": "ai",

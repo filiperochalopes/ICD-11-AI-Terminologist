@@ -30,6 +30,35 @@ class ExactMatchStemCodeTool(BaseTool):
                 stem_hits = item.content
                 break
 
+        blacklist_codes = set(
+            item.content
+            for item in state.task_memory
+            if getattr(item, "name", None) == "blacklist_code"
+        )
+
+        # filtrando stem_hits pelo blacklist_codes
+        stem_hits = [hit for hit in stem_hits if hit.get("code") not in blacklist_codes]
+
+        if len(stem_hits) == 1:
+            # Caso só tenha um stem hit, retorna ele
+            return sm.update(
+                {
+                    "task_memory": [
+                        {
+                            "name": "blacklist_code",
+                            "content": stem_hits[0].get("code"),
+                        }
+                    ],
+                    "partial_output_code": stem_hits[0].get("code"),
+                    "messages": [
+                        {
+                            "type": "ai",
+                            "content": f"[Exact Match]\nCode: {stem_hits[0].get('code')}\nFSN: {stem_hits[0].get('fsn')}",
+                        }
+                    ],
+                }
+            )
+
         # Normalize input concept: remove punctuation, lowercase, and split into tokens
         normalized_concept = re.sub(r"[^\w\s]", "", raw_concept.strip()).lower()
         concept_tokens = normalized_concept.split()
@@ -42,11 +71,6 @@ class ExactMatchStemCodeTool(BaseTool):
             normalized_label = re.sub(r"[^\w\s]", "", raw_label.strip()).lower()
             fsn_tokens = normalized_fsn.split()
             label_tokens = normalized_label.split()
-
-            # Debug print to verify token lists
-            print(
-                f"Comparing concept tokens {concept_tokens} to FSN tokens {fsn_tokens} and label tokens {label_tokens} for code {hit.get('code')}"
-            )
 
             # Compare token sets (order-insensitive) against concept
             if set(fsn_tokens) == set(concept_tokens) or set(label_tokens) == set(

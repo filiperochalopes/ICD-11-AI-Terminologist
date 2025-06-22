@@ -65,11 +65,6 @@ class SpecificityCheckTool(LLMBasedTool):
 
         # Verifica se esse é o útltimo passo do código, pois nesse caso ele precisará retornar algo de qualquer forma para o final_code
         task_memory = [{"name": "blacklist_code", "content": codes[0]}]
-        force_final_code = False
-        for m in state.task_memory:
-            if m.name == "step" and m.content == "final_step_flag":
-                force_final_code = True
-                break
 
         if input_concept_tokens == fsn_tokens:
             # Se o conceito sugerido (FSN) é o mesmo que o conceito clínico de input, então o conceito clínico de input é igual ao FSN |> SAME-AS
@@ -88,41 +83,33 @@ class SpecificityCheckTool(LLMBasedTool):
 
         if fsn_tokens.issuperset(input_concept_tokens):
             # Se o conceito sugerido (FSN) é um superset (ou seja, contém todos os termos do conceito clínico de input) então o conceito clínico de input é mais especifico que o FSN |> NARROWER-THAN
-            rtn_state = sm.update(
+            return sm.update(
                 {
-                    "task_memory": [{"name": "blacklist_code", "content": codes[0]}],
+                    "task_memory": task_memory,
                     "messages": [
                         {
                             "type": "ai",
                             "content": f"[Specificity Check]\nNARROWER-THAN {code}",
                         }
                     ],
+                    "final_code": f"<map_type>NARROWER-THAN</map_type><code>{code}</code>",
                 }
             )
-            if force_final_code:
-                rtn_state = GraphStateManager(rtn_state).update(
-                    {"final_code": f"<map_type>NARROWER-THAN</map_type><code>{code}"}
-                )
-            return rtn_state
 
         if input_concept_tokens.issuperset(fsn_tokens):
             # Se o conceito clínico de input é um superset (ou seja, contém todos os termos do conceito sugerido (FSN)) então o conceito clínico de input é menos especifico que o FSN |> BROADER-THAN
-            rtn_state = sm.update(
+            return sm.update(
                 {
-                    "task_memory": [{"name": "blacklist_code", "content": codes[0]}],
+                    "task_memory": task_memory,
                     "messages": [
                         {
                             "type": "ai",
                             "content": f"[Specificity Check]\nBROADER-THAN {code}",
                         }
                     ],
+                    "final_code": f"<map_type>BROADER-THAN</map_type><code>{code}</code>",
                 }
             )
-            if force_final_code:
-                rtn_state = GraphStateManager(rtn_state).update(
-                    {"final_code": f"<map_type>BROADER-THAN</map_type><code>{code}"}
-                )
-            return rtn_state
 
         # Step 2: LLM judgment if heuristic was inconclusive
         user_msg = f"""You are a medical coding assistant.
@@ -145,16 +132,29 @@ Assistant:"""
         print("📨 Prompt:", prompt)
 
         response = self.llm_invoke(prompt)
-        rtn_state = sm.update({"messages": self.convert_llm_response_to_langgraph_messages(response, "Specificity Check")})
-
-        if force_final_code:
-            rtn_state = GraphStateManager(rtn_state).update(
+        # Caso a resposta seja NARROWER-THAN, BROADER-THAN ou SAME-AS, então retorna o code correspondente
+        if response.content.strip() in ["NARROWER-THAN", "BROADER-THAN", "SAME-AS"]:
+            return sm.update(
                 {
-                    "final_code": f"<map_type>{response.content.strip()}</map_type><code>{code}"
+                    "task_memory": task_memory,
+                    "messages": self.convert_llm_response_to_langgraph_messages(
+                        response, "Specificity Check"
+                    ),
+                    "final_code": f"<map_type>{response.content.strip()}</map_type><code>{code}</code>",
                 }
             )
-
-        return rtn_state
+        else:
+            return sm.update(
+                {
+                    "messages": [
+                        {
+                            "type": "ai",
+                            "content": "[Specificity Check]\nINCONCLUSIVE. Retrying...",
+                        }
+                    ],
+                    "final_code": "",
+                }
+            )
 
     def _arun(self, state: GraphState) -> GraphState:
         return self._run(state)

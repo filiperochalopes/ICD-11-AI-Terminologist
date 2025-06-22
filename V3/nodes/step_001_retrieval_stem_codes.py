@@ -14,7 +14,7 @@ def step_001_retrieval_stem_codes(state: GraphState) -> GraphState:
     """
 
     # Extract the last user message from the conversation history
-    user_message = state.messages[-1].content
+    user_message = state.clinical_concept_input if state.clinical_concept_input else state.messages[-1].content
     print(f"🔍 User message for retrieval: {user_message}")
 
     sm = GraphStateManager(state)
