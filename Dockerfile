@@ -1,15 +1,13 @@
 FROM python:3.11-slim
 
-ARG VERSION=V3
-ENV VERSION=${VERSION}
-
 WORKDIR /app
 
 COPY requirements.txt ./
+
+RUN apt-get update && apt-get install -y build-essential cmake python3-dev && rm -rf /var/lib/apt/lists/*
+
 RUN pip install --prefer-binary -r requirements.txt
 
 COPY . .
 
-RUN python ${VERSION}/download_model.py
-
-CMD ["langgraph", "run", "${VERSION}:app"]
+CMD ["python", "main.py"]
