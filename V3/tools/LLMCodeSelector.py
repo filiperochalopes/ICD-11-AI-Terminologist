@@ -3,7 +3,7 @@ from typing import ClassVar
 from V3.classes import GraphState, GraphStateManager
 
 
-class ICD11MappingTool(LLMBasedTool):
+class LLMCodeSelector(LLMBasedTool):
     """
     LangChain Tool: ICD-11 Mapping
     Selects the ICD-11 code that best matches a given clinical concept.
