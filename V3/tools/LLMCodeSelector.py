@@ -22,9 +22,11 @@ class LLMCodeSelector(LLMBasedTool):
         # Extract core parameters
 
         # captura da lista state.context onde name = "stem_hits"
-        context = "\n".join(
-            [item.content for item in state.context if item.name == "stem_hits"]
+        # Capture the last item in state.context where "hit" is in item.name
+        last_hit_item = next(
+            (item for item in reversed(state.context) if "hit" in item.name), None
         )
+        context = last_hit_item.content if last_hit_item else ""
 
         # Build dynamic prompt for model
         user_msg = f"""You are a clinical coding assistant.

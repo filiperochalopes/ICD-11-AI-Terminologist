@@ -123,6 +123,20 @@ Answer strictly with:
 - NARROWER-THAN → If the INPUT CONCEPT contains more detail than the FINAL CONCEPT (i.e., INPUT is more specific)
 - BROADER-THAN → If the FINAL CONCEPT contains more detail than the INPUT CONCEPT (i.e., FINAL is more specific)
 - SAME-AS → If both have the same level of specificity
+
+Few-shot examples:
+INPUT: "Acute appendicitis with perforation"
+FINAL: "Acute appendicitis"
+→ NARROWER-THAN
+
+INPUT: "Chronic liver disease"
+FINAL: "Nonalcoholic fatty liver disease with fibrosis"
+→ BROADER-THAN
+
+INPUT: "Type 2 diabetes mellitus"
+FINAL: "Type 2 diabetes mellitus"
+→ SAME-AS
+
 Do NOT explain. Output only the label.
 
 Assistant:"""
